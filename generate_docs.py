@@ -197,7 +197,7 @@ The system uses a Retrieval-Augmented Generation (RAG) architecture with
 a classification routing layer:
 
 ```
-Query -> DistilBERT Classifier -> Category
+Query -> BioBERT Classifier -> Category
       -> BM25 + FAISS Hybrid Retrieval (top-5 chunks)
       -> Groq LLM (llama-3.1-8b-instant) with context injection
       -> Disclaimer layer -> Response
@@ -207,7 +207,7 @@ Query -> DistilBERT Classifier -> Category
 
 ## 2. Embedding Model
 
-**Model:** `sentence-transformers/all-MiniLM-L6-v2`
+**Model:** `pritamdeka/S-PubMedBert-MS-MARCO`
 
 **Rationale:**
 - 384-dimensional embeddings — compact yet expressive
@@ -255,7 +255,7 @@ This grounds the LLM closely to source text, improving ROUGE-L overlap.
 
 ## 5. Classification Model
 
-**Model:** `distilbert-base-uncased` fine-tuned on PubMedQA (6 categories)
+**Model:** `dmis-lab/biobert-v1.1` fine-tuned on qiaojin/PubMedQA (6 categories)
 **Training:** 80/10/10 split, lr=2e-5, batch=16, epochs=3, class weights
 **Result:** Macro F1 = 0.867 (target >= 0.78) ✅
 
