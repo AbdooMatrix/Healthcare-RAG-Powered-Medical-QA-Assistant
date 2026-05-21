@@ -199,7 +199,7 @@ a classification routing layer:
 ```
 Query -> BioBERT Classifier -> Category
       -> BM25 + FAISS Hybrid Retrieval (top-5 chunks)
-      -> Groq LLM (llama-3.1-8b-instant) with context injection
+      -> Groq LLM (meta-llama/llama-4-scout-17b-16e-instruct) with context injection
       -> Disclaimer layer -> Response
 ```
 
@@ -240,12 +240,14 @@ category before returning top-5.
 
 ## 4. LLM and Prompt Design
 
-**Primary LLM:** Groq API — `llama-3.1-8b-instant`
+**Primary LLM:** Groq API — `meta-llama/llama-4-scout-17b-16e-instruct`
 - Temperature: 0.1 (near-deterministic for medical accuracy)
 - Max tokens: 512
 - Automatic retry on transient errors (tenacity, 3 attempts)
 
 **Fallback:** `google/flan-t5-base` (local, no API key required)
+
+**Note:** Update the model name above when switching to a different Groq model.
 
 **Prompt design:** Retrieved chunk `answer` fields (research conclusions)
 are labelled "Research Conclusion N" and placed before supporting context.
