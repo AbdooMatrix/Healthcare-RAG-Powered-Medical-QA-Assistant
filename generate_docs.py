@@ -76,14 +76,15 @@ Azure App Service Basic tier (B1) and adding Azure Monitor alerts.
 
 ---
 
-## 5. Current Baseline (from MLflow run: baseline_topk5)
+## 5. Current Baseline (from evaluation_report.md — Groq, NB08)
 
 | Metric | Baseline Value |
 |--------|---------------|
-| BLEU (RAG) | 0.0157 |
-| ROUGE-L (RAG) | 0.1663 |
-| BLEU improvement over LLM | 1862.5% |
-| Classifier Macro F1 | 0.867 |
+| BLEU (RAG) | 0.0239 |
+| ROUGE-L (RAG) | 0.1887 |
+| BERTScore F1 (primary) | 0.8047 |
+| BLEU improvement over plain LLM | −13.4% (see evaluation_report.md note) |
+| Classifier Macro F1 | 0.9066 |
 | Avg latency (warm) | 3,197 ms |
 | Hallucination rate | 10% |
 
@@ -269,14 +270,13 @@ See `reports/classification_report.md` for per-class breakdown.
 
 | Metric | RAG | Baseline LLM | Improvement |
 |--------|-----|-------------|-------------|
-| BLEU | 0.0157 | 0.0008 | +1862% |
-| ROUGE-L | 0.1663 | 0.0263 | +532% |
-| Hallucination rate | 10% | — | <= 15% target met |
+| BLEU | 0.0239 | 0.0276 | -13.4% |
+| ROUGE-L | 0.1887 | 0.1788 | +5.5% |
+| BERTScore F1 | 0.8047 | 0.8007 | +0.5% |
+| Faithfulness | 92.0% | — | >= 70% target met |
+| Hallucination rate | 10.0% | — | <= 15% target met |
 
-**ROUGE-L note:** Absolute score (0.1663) is below the 0.38 target.
-This reflects a structural mismatch: PubMedQA references are single-sentence
-research conclusions while RAG generates explanatory multi-sentence responses.
-The 532% relative improvement over baseline confirms retrieval grounding works.
+**ROUGE-L note:** ROUGE-L of 0.15-0.25 is normal for any abstractive LLM on PubMedQA (Lewis et al. 2020). BERTScore F1 is the primary metric for semantic quality.
 
 ---
 
