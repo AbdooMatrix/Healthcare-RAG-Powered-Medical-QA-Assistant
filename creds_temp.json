@@ -1,0 +1,14 @@
+D:\a\_work\1\s\build_scripts\windows\artifacts\cli\Lib\site-packages\cryptography/hazmat/backends/openssl/backend.py:8: UserWarning: You are using cryptography on a 32-bit Python on a 64-bit Windows Operating System. Cryptography will be significantly faster if you switch to using a 64-bit Python.
+{
+  "id": "/subscriptions/aa3a7723-9826-4d0e-929e-c7651bd63a1b/resourceGroups/healthcare-rag-rg/providers/Microsoft.Web/sites/healthcare-rag-app/publishingcredentials/REDACTED",
+  "kind": null,
+  "location": "Germany West Central",
+  "name": "healthcare-rag-app",
+  "publishingPassword": "REDACTED",
+  "publishingPasswordHash": null,
+  "publishingPasswordHashSalt": null,
+  "publishingUserName": "REDACTED",
+  "resourceGroup": "healthcare-rag-rg",
+  "scmUri": "https://REDACTED:REDACTED@healthcare-rag-app.scm.azurewebsites.net",
+  "type": "Microsoft.Web/sites/publishingcredentials"
+}
