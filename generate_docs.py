@@ -223,10 +223,8 @@ Query -> BioBERT Classifier -> Category
 **Alternative considered:** BioBERT embeddings — rejected due to 3-4x
 higher inference latency and no measurable ROUGE-L gain on PubMedQA.
 
-> **Note:** The FAISS index file is named `pubmedqa_index_flatl2.faiss` (legacy name)
-> but the code constructs `IndexFlatIP` (inner product). With L2-normalised embeddings,
-> inner product is equivalent to cosine similarity — the two are interchangeable
-> for normalised vectors.
+> **Note:** The FAISS index file is named `pubmedqa_index_flatip.faiss`
+> With L2-normalised embeddings, inner product is equivalent to cosine similarity.
 
 ---
 
