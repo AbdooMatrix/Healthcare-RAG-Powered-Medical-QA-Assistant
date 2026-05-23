@@ -37,7 +37,11 @@ REPORTS.mkdir(exist_ok=True)
 | ROUGE-L | >= 0.15 | 0.10 - 0.15 | < 0.10 over 7-day window |
 | Macro F1 | >= 0.80 | 0.72 - 0.80 | < 0.72 on new query sample |
 | Avg latency | <= 3,500 ms | 3,500 - 5,000 ms | > 5,000 ms sustained warm |
-| Hallucination rate | <= 10% | 10 - 15% | > 15% on manual review |
+| Hallucination rate | < 10% | 10 - 15% | > 15% on manual review |
+
+> **Note:** The current baseline hallucination rate is exactly 10.0%, which sits
+> at the boundary between Healthy and Warning. Any upward trend in the next
+> evaluation cycle should trigger investigation.
 
 Drift is measured as a rolling 7-day average against the baselines recorded
 in MLflow experiment run `baseline_topk5`.
@@ -80,8 +84,8 @@ Azure App Service Basic tier (B1) and adding Azure Monitor alerts.
 
 | Metric | Baseline Value |
 |--------|---------------|
-| BLEU (RAG) | 0.0239 |
-| ROUGE-L (RAG) | 0.1887 |
+| BLEU (RAG, secondary) | 0.0239 |
+| ROUGE-L (RAG, secondary) | 0.1887 |
 | BERTScore F1 (primary) | 0.8047 |
 | BLEU improvement over plain LLM | −13.4% (see evaluation_report.md note) |
 | Classifier Macro F1 | 0.9066 |
@@ -211,7 +215,7 @@ Query -> BioBERT Classifier -> Category
 **Model:** `pritamdeka/S-PubMedBert-MS-MARCO`
 
 **Rationale:**
-- 384-dimensional embeddings — compact yet expressive
+- 768-dimensional embeddings — highly expressive for biomedical text
 - Fast inference on CPU (critical for Azure Free Tier)
 - Strong performance on biomedical question similarity benchmarks
 - Pre-trained on 1B+ sentence pairs including scientific text
@@ -219,12 +223,17 @@ Query -> BioBERT Classifier -> Category
 **Alternative considered:** BioBERT embeddings — rejected due to 3-4x
 higher inference latency and no measurable ROUGE-L gain on PubMedQA.
 
+> **Note:** The FAISS index file is named `pubmedqa_index_flatl2.faiss` (legacy name)
+> but the code constructs `IndexFlatIP` (inner product). With L2-normalised embeddings,
+> inner product is equivalent to cosine similarity — the two are interchangeable
+> for normalised vectors.
+
 ---
 
 ## 3. Retrieval Strategy
 
-**Primary:** FAISS IndexFlatL2 — exact nearest-neighbour search over
-9,800 embedded Q&A chunks from PubMedQA.
+**Primary:** FAISS IndexFlatIP — exact nearest-neighbour (inner product) search over
+209,108 embedded Q&A chunks from PubMedQA.
 
 **Secondary:** BM25 keyword index (rank-bm25) — high-confidence keyword
 hits (score > 5.0) are prioritised over semantic results. This captures
@@ -237,13 +246,17 @@ remaining slots. Returns top-5 chunks by default.
 over-samples (top-15) and re-ranks to prioritise chunks matching that
 category before returning top-5.
 
+**Retrieval detail:** The FAISS index retrieves 20 candidates (top_k=20)
+and the CrossEncoder reranker selects the top 5 for LLM injection.
+All 20 candidates are returned in the API payload for transparency.
+
 ---
 
 ## 4. LLM and Prompt Design
 
 **Primary LLM:** Groq API — `meta-llama/llama-4-scout-17b-16e-instruct`
 - Temperature: 0.1 (near-deterministic for medical accuracy)
-- Max tokens: 512
+- Max tokens: 256
 - Automatic retry on transient errors (tenacity, 3 attempts)
 
 **Fallback:** `google/flan-t5-base` (local, no API key required)
@@ -260,7 +273,7 @@ This grounds the LLM closely to source text, improving ROUGE-L overlap.
 
 **Model:** `dmis-lab/biobert-v1.1` fine-tuned on qiaojin/PubMedQA (6 categories)
 **Training:** 80/10/10 split, lr=2e-5, batch=16, epochs=3, class weights
-**Result:** Macro F1 = 0.867 (target >= 0.78) ✅
+**Result:** Macro F1 = 0.9066 (target >= 0.78) ✅
 
 See `reports/classification_report.md` for per-class breakdown.
 
